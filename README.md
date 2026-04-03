@@ -1,40 +1,45 @@
 # 🛡️ SupraWall Plugins Monorepo
 
-The industry-first deterministic security layer for AI Agents. Protect your agentic workflows with Zero-Trust guardrails.
+**The Industry-Standard Deterministic Security Layer for AI Agents.**
 
-[SupraWall.dev](https://suprawall.dev) | [Docs](https://docs.suprawall.dev) | [Security Policy](https://suprawall.dev/security)
+SupraWall solves the "trust" problem in generative AI by providing a zero-knowledge, deterministic security layer between LLMs and your production systems. Unlike probabilistic security models, SupraWall enforces strict business policies and forensic-grade threat detection before an agentic action even reaches your API.
 
----
-
-## 📦 What's Inside?
-
-This monorepo contains the official plugins and framework integrations for the SupraWall ecosystem.
-
-### 🤖 LLM Marketplace Plugins
-- **[Dify Plugin](./suprawall-security)**: Deterministic policy enforcement and threat scanning (SQLi, Prompt Injection) for Dify Workflows.
-- **[MCP Claude Plugin](./mcp-plugin)**: Official Model Context Protocol (MCP) server for Anthropic Claude Desktop and Claude-powered agents.
-
-### 🧱 Framework Integrations
-Direct security middleware for your favorite AI frameworks:
-- **[AutoGen](./autogen)**: Protect Microsoft AutoGen agent societies.
-- **[CrewAI](./crewai)**: Secure your CrewAI multi-agent systems.
-- **[LangChain (Python)](./langchain-py)** & **[LangChain (TS)](./langchain-ts)**: Seamless security wrappers for LangChain chains and agents.
-- **[LlamaIndex](./llama-index)**: Secure RAG and agentic data retrieval.
-- **[Vercel AI SDK](./vercel-ai)**: Integrated guardrails for Vercel AI projects.
-- **[OpenClaw](./openclaw)**: Native security for the OpenClaw agent runtime.
+[Official Website](https://www.supra-wall.com) | [Main Repository](https://github.com/wiserautomation/SupraWall) | [Documentation](https://docs.supra-wall.com)
 
 ---
 
-## 🚀 Getting Started
+## 🏛️ Project Vision
 
-### Installation
-Every plugin/integration can be installed independently. Navigate to the specific directory for detailed setup instructions.
+SupraWall (formerly AgentGate) was built to bridge the gap between high-velocity AI experimentation and enterprise security compliance. Our goal is to empower developers to ship autonomous agentic fleets without the risk of Prompt Injection, PII data leakage, or uncontrolled tool execution.
 
-### Dify Marketplace (Coming Soon)
-We are currently in review for the official [Dify Marketplace](https://cloud.dify.ai/plugins). You can install manually using the `.difypkg` in the `suprawall-security` folder while we wait.
+This monorepo serves as the official distribution hub for all SupraWall plugins and framework integrations.
 
-### Claude Desktop (MCP)
-To use the MCP plugin with Claude Desktop, add the following to your `claude_desktop_config.json`:
+---
+
+## 📦 Plugin Directory
+
+### 🚀 Core Platform Integrations
+- **[Dify Plugin](./suprawall-security)**: Explicit security guardrails for Dify Workflows. Detects SQLi, XSS, and Prompt Injection natively within your Dify environment.
+- **[MCP Claude Server](./mcp-plugin)**: Official implementation of the Model Context Protocol (MCP). Enables SupraWall security policies directly within Anthropic Claude Desktop and Claude-powered agents.
+- **[OpenClaw Extension](./openclaw)**: Native security middleware for the OpenClaw agent runtime.
+
+### 🧱 Framework Security Middleware
+Seamless "Zero-Trust" wrappers for the industry's leading AI agent frameworks:
+- **[AutoGen Integration](./autogen)**: Secure protection for Microsoft AutoGen multi-agent topologies.
+- **[CrewAI Integration](./crewai)**: Deterministic policy enforcement for CrewAI processes and agents.
+- **[LangChain (Python & TS)](./langchain-py)**: Security interceptors for LangChain chains, tools, and executors.
+- **[LlamaIndex Integration](./llama-index)**: Secure guardrails for RAG pipelines and tool-based retrieval.
+- **[Vercel AI SDK Integration](./vercel-ai)**: One-line security additions for projects built on the Vercel AI SDK.
+
+---
+
+## 🚦 Quick Start
+
+### For Dify Marketplace Users
+We represent the most robust security option on the [Dify Marketplace](https://cloud.dify.ai/plugins). To install manually during the initial review phase, use the pre-packaged `.difypkg` found in the `suprawall-security` directory.
+
+### For Claude Desktop Users
+Add SupraWall to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
@@ -48,16 +53,15 @@ To use the MCP plugin with Claude Desktop, add the following to your `claude_des
 
 ---
 
-## 🔒 Security First
-
-SupraWall is built on **Deterministic Security**. We don't guess if an action is dangerous; we enforce your specific business policies before the agent even attempts the call.
-
-### Found a security issue?
-Please report it via our [Security Policy](https://suprawall.dev/security) or email `security@suprawall.dev`. 
+## 🛡️ Security Architecture
+SupraWall is built on three core pillars:
+1. **Detection**: Real-time identification of adversarial intent (Prompt Injection, SQLi, Jailbreaks).
+2. **Scrubbing**: Automatic removal of PII (Names, Emails, Keys) before data leaves your environment.
+3. **Enforcement**: Strict policy-based execution—if a tool call doesn't match your rule, it's blocked.
 
 ---
 
 ## 📄 License
-This project is licensed under the [Apache License 2.0](./LICENSE).
+Licensed under the [Apache License 2.0](./LICENSE).
 
-&copy; 2026 WiserAutomation. Agency. All rights reserved.
+&copy; 2026 WiserAutomation. Agency. All rights reserved. Registered in the Dify and Anthropic Marketplaces.
