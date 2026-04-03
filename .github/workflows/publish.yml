@@ -71,7 +71,7 @@ jobs:
           ## 1. Metadata
           - **Plugin Author**: suprawall
           - **Plugin Name**: suprawall-security
-          - **Repository URL**: https://github.com/wiserautomation/suprawall-plugins
+          - **Repository URL**: https://github.com/wiserautomation/suprawall-plugins-
 
           ## 2. Submission Type
           - [x] New plugin submission
