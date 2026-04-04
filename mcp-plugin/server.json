@@ -1,0 +1,12 @@
+{
+  "mcpId": "io.github.wiserautomation.suprawall-mcp-plugin",
+  "version": "0.1.0",
+  "description": "SupraWall security gateway as an MCP server. Provides deterministic guardrails (Prompt Injection, SQLi, PII protection) for agents using the MCP protocol.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wiserautomation/suprawall-plugins-"
+  },
+  "runtime": "node",
+  "transport": "stdio",
+  "entrypoint": "dist/index.js"
+}
