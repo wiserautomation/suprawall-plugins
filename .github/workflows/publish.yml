@@ -2,112 +2,77 @@ name: Publish to Dify Marketplace
 
 on:
   release:
-    types: [published]
-  workflow_dispatch:
+      types: [published]
+        workflow_dispatch:
 
-jobs:
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Source Repo
-        uses: actions/checkout@v4
-        with:
-          path: source-repo
+        jobs:
+          publish:
+              runs-on: ubuntu-latest
+                  steps:
+                        - name: Checkout Source Repo
+                                uses: actions/checkout@v4
+                                        with:
+                                                  path: source-repo
 
-      - name: Setup Dify CLI
-        run: |
-          curl -L https://github.com/langgenius/dify/releases/download/0.6.0/dify-plugin-linux-amd64 -o dify
-          chmod +x dify
-          sudo mv dify /usr/local/bin/
+                                                        - name: Setup Dify CLI
+                                                                run: |
+                                                                          curl -L https://github.com/langgenius/dify-plugin-daemon/releases/download/0.5.6/dify-plugin-linux-amd64 -o dify
+                                                                                    chmod +x dify
+                                                                                              sudo mv dify /usr/local/bin/dify-plugin-daemon
 
-      - name: Package Plugin
-        run: |
-          cd source-repo/suprawall-security
-          dify plugin package .
-
-      - name: Checkout Fork of dify-plugins
-        uses: actions/checkout@v4
-        with:
-          repository: wiserautomation/dify-plugins
-          token: ${{ secrets.PLUGIN_ACTION }}
-          path: dify-plugins-fork
-
-      - name: Stage Plugin Files in Fork
-        run: |
-          mkdir -p dify-plugins-fork/plugins/wiserautomation/suprawall-security
-          
-          # Copy everything from our source folder
-          cp source-repo/suprawall-security/suprawall-security.difypkg dify-plugins-fork/plugins/wiserautomation/suprawall-security/
-          cp -R source-repo/suprawall-security/* dify-plugins-fork/plugins/wiserautomation/suprawall-security/
-
-      - name: Commit and Push to Fork
-        run: |
-          cd dify-plugins-fork
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b auto-publish-${{ github.event.release.tag_name || 'manual' }}
-          git add .
-          git commit -m "feat: publish SupraWall Security ${{ github.event.release.tag_name }}"
-          git push origin auto-publish-${{ github.event.release.tag_name || 'manual' }} --force
-
-      - name: Check PR Exists
-        id: check_pr
-        env:
-          GH_TOKEN: ${{ secrets.PLUGIN_ACTION }}
-        run: |
-          PR_EXISTS=$(gh pr list --repo langgenius/dify-plugins --head wiserautomation:auto-publish-${{ github.event.release.tag_name || 'manual' }} --json url -q 'length')
-          echo "exists=$PR_EXISTS" >> $GITHUB_OUTPUT
-
-      - name: Create Pull Request to Official Marketplace
-        if: steps.check_pr.outputs.exists == '0'
-        env:
-          GH_TOKEN: ${{ secrets.PLUGIN_ACTION }}
-        run: |
-          cd dify-plugins-fork
-          
-          cat << 'EOF' > pr_body.txt
-          # Plugin Submission Form
-
-          ## 1. Metadata
-          - **Plugin Author**: suprawall
-          - **Plugin Name**: suprawall-security
-          - **Repository URL**: https://github.com/wiserautomation/suprawall-plugins-
-
-          ## 2. Submission Type
-          - [x] New plugin submission
-          - [ ] Version update for existing plugin
-
-          ## 3. Description
-          SupraWall provides deterministic security guardrails for AI agents. It protects against Prompt Injection, SQL Injection, and enforces PII scrubbing and policy-based tool enforcement. It brings a "Zero-Trust" security layer to the Dify ecosystem.
-
-          ## 4. Checklist
-          - [x] I have read and followed the Publish to Dify Marketplace guidelines
-          - [x] I have read and comply with the Plugin Developer Agreement
-          - [x] I confirm my plugin works properly on both Dify Community Edition and Cloud Version
-          - [x] I confirm my plugin has been thoroughly tested for completeness and functionality
-          - [x] My plugin brings new value to Dify
-
-          ## 5. Documentation Checklist
-          - [x] Step-by-step setup instructions (Included in README.md)
-          - [x] Detailed usage instructions (Included in README.md)
-          - [x] All required APIs and credentials are clearly listed
-          - [x] Connection requirements and configuration details
-          - [x] Link to the repository for the plugin source code
-
-          ## 6. Privacy Protection Information
-          ### Data Collection
-          The SupraWall plugin collects the following data for security evaluation:
-          - Text content for threat scanning (SQLi/Prompt Injection)
-          - Tool names and arguments for policy enforcement
-          - SupraWall API Keys (Secured via Dify Secrets)
-
-          ### Privacy Policy
-          - [x] I confirm that I have prepared and included a privacy policy (privacy_policy.md) in my plugin package based on the Plugin Privacy Protection Guidelines
-          EOF
-          
-          gh pr create \
-            --repo langgenius/dify-plugins \
-            --title "Publish SupraWall Security Plugin ${{ github.event.release.tag_name }}" \
-            --body-file pr_body.txt \
-            --head wiserautomation:auto-publish-${{ github.event.release.tag_name || 'manual' }} \
-            --base main
+                                                                                                    - name: Package Plugin
+                                                                                                            run: |
+                                                                                                                      cd source-repo/suprawall-security
+                                                                                                                                dify plugin package .
+                                                                                                                                
+                                                                                                                                      - name: Checkout Fork of dify-plugins
+                                                                                                                                              uses: actions/checkout@v4
+                                                                                                                                                      with:
+                                                                                                                                                                repository: wiserautomation/dify-plugins
+                                                                                                                                                                          token: ${{ secrets.PLUGIN_ACTION }}
+                                                                                                                                                                                    path: dify-plugins-fork
+                                                                                                                                                                                    
+                                                                                                                                                                                          - name: Commit and Push to Fork
+                                                                                                                                                                                                  run: |
+                                                                                                                                                                                                            mkdir -p dify-plugins-fork/plugins/wiserautomation/suprawall-security
+                                                                                                                                                                                                                      cp source-repo/suprawall-security/suprawall-security.difypkg dify-plugins-fork/plugins/wiserautomation/suprawall-security/
+                                                                                                                                                                                                                                cp -R source-repo/suprawall-security/* dify-plugins-fork/plugins/wiserautomation/suprawall-security/
+                                                                                                                                                                                                                                          cd dify-plugins-fork
+                                                                                                                                                                                                                                                    git config user.name "github-actions[bot]"
+                                                                                                                                                                                                                                                              git config user.email "github-actions[bot]@users.noreply.github.com"
+                                                                                                                                                                                                                                                                        git checkout -b auto-publish-${{ github.event.release.tag_name || 'manual' }}
+                                                                                                                                                                                                                                                                                  git add .
+                                                                                                                                                                                                                                                                                            git commit -m "feat: publish SupraWall Security ${{ github.event.release.tag_name }}"
+                                                                                                                                                                                                                                                                                                      git push origin auto-publish-${{ github.event.release.tag_name || 'manual' }} --force
+                                                                                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                                                                                            - name: Check PR Exists
+                                                                                                                                                                                                                                                                                                                    id: check_pr
+                                                                                                                                                                                                                                                                                                                            env:
+                                                                                                                                                                                                                                                                                                                                      GH_TOKEN: ${{ secrets.PLUGIN_ACTION }}
+                                                                                                                                                                                                                                                                                                                                              run: |
+                                                                                                                                                                                                                                                                                                                                                        PR_EXISTS=$(gh pr list --repo langgenius/dify-plugins --head wiserautomation:auto-publish-${{ github.event.release.tag_name || 'manual' }} --json url -q 'length')
+                                                                                                                                                                                                                                                                                                                                                                  echo "exists=$PR_EXISTS" >> $GITHUB_OUTPUT
+                                                                                                                                                                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                        - name: Create Pull Request to Official Marketplace
+                                                                                                                                                                                                                                                                                                                                                                                if: steps.check_pr.outputs.exists == '0'
+                                                                                                                                                                                                                                                                                                                                                                                        env:
+                                                                                                                                                                                                                                                                                                                                                                                                  GH_TOKEN: ${{ secrets.PLUGIN_ACTION }}
+                                                                                                                                                                                                                                                                                                                                                                                                          run: |
+                                                                                                                                                                                                                                                                                                                                                                                                                    cd dify-plugins-fork
+                                                                                                                                                                                                                                                                                                                                                                                                                              cat << 'EOF' > pr_body.txt
+                                                                                                                                                                                                                                                                                                                                                                                                                                        # Plugin Submission Form
+                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                  ## 1. Metadata
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            - **Plugin Author**: suprawall
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                      - **Plugin Name**: suprawall-security
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                - **Repository URL**: https://github.com/wiserautomation/suprawall-plugins-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ## 2. Submission Type
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    - [x] New plugin submission
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              - [ ] Version update for existing plugin
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ## 3. Description
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  SupraWall provides deterministic security guardrails for AI agents. It protects against Prompt Injection, SQL Injection, and enforces PII scrubbing and policy-based tool enforcement. It brings a "Zero-Trust" security layer to the Dify ecosystem.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            EOF
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      gh pr create --repo langgenius/dify-plugins --base main --head wiserautomation:auto-publish-${{ github.event.release.tag_name || 'manual' }} --title "feat: add suprawall-security plugin" --body-file pr_body.txt
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
