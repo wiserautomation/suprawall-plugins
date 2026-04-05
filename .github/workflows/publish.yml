@@ -22,8 +22,7 @@ jobs:
 
       - name: Package Plugin
         run: |
-          cd source-repo/suprawall-security
-          dify plugin package .
+          dify plugin package source-repo/suprawall-security
 
       - name: Checkout Fork of dify-plugins
         uses: actions/checkout@v4
@@ -37,7 +36,7 @@ jobs:
           mkdir -p dify-plugins-fork/plugins/wiserautomation/suprawall-security
           
           # Copy everything from our source folder
-          cp source-repo/suprawall-security/suprawall-security.difypkg dify-plugins-fork/plugins/wiserautomation/suprawall-security/
+          cp suprawall-security.difypkg dify-plugins-fork/plugins/wiserautomation/suprawall-security/
           cp -R source-repo/suprawall-security/* dify-plugins-fork/plugins/wiserautomation/suprawall-security/
 
       - name: Commit and Push to Fork
