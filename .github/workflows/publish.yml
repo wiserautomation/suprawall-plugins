@@ -16,7 +16,7 @@ jobs:
 
       - name: Setup Dify CLI
         run: |
-          curl -L https://github.com/langgenius/dify/releases/download/0.6.0/dify-plugin-linux-amd64 -o dify
+          curl -L https://github.com/langgenius/dify-plugin-daemon/releases/download/0.5.6/dify-plugin-linux-amd64 -o dify
           chmod +x dify
           sudo mv dify /usr/local/bin/
 
