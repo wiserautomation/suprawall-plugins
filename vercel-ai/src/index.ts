@@ -23,6 +23,7 @@ export function withsuprawall(tools: Record<string, any>, options?: { apiKey?: s
                     body: JSON.stringify({
                         agentId: "vercel_ai_agent",
                         toolName,
+                        framework: "vercel-ai",
                         arguments: args
                     })
                 });

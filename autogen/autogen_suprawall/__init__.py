@@ -25,7 +25,10 @@ def with_suprawall(func: Callable, api_key: str = None) -> Callable:
             "agentId": "autogen_agent",
             "toolName": tool_name,
             "arguments": kwargs
-        }, headers={"Authorization": f"Bearer {key}"})
+        }, headers={
+            "Authorization": f"Bearer {key}",
+            "x-suprawall-framework": "autogen"
+        })
         
         if res.status_code == 200:
             decision = res.json().get("decision")

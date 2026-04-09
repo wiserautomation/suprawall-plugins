@@ -30,7 +30,10 @@ def with_suprawall(tools: List[Any], api_key: Optional[str] = None) -> List[Any]
                 "agentId": "crewai_agent",
                 "toolName": tool_name,
                 "arguments": kwargs
-            }, headers={"Authorization": f"Bearer {key}"})
+            }, headers={
+                "Authorization": f"Bearer {key}",
+                "x-suprawall-framework": "crewai"
+            })
             
             if res.status_code == 200:
                 decision = res.json().get("decision")

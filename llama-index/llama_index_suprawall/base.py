@@ -42,7 +42,10 @@ class SupraWallSecurityPack(BaseLlamaPack):
                     "agentId": "llama_index_secured_agent",
                     "toolName": tool.metadata.name,
                     "arguments": kwargs
-                }, headers={"Authorization": f"Bearer {self.api_key}"})
+                }, headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "x-suprawall-framework": "llama-index"
+                })
                 
                 if res.status_code == 200:
                     decision = res.json().get("decision")
