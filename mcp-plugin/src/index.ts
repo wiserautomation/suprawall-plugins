@@ -41,29 +41,64 @@ class SupraWallMCP {
     };
   }
   
+  private async requestWithRetry(url: string, data: any, retries = 3): Promise<any> {
+    let lastError: any;
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await axios.post(url, data, {
+                headers: {
+                    'Authorization': `Bearer ${this.config.apiKey}`,
+                    'Content-Type': 'application/json',
+                    'x-suprawall-framework': 'mcp'
+                },
+                timeout: 3000 // 3s timeout
+            });
+            return response.data;
+        } catch (error: any) {
+            lastError = error;
+            // Only retry on network errors or 5xx
+            if (error.response && error.response.status < 500) {
+                throw error;
+            }
+            if (i < retries - 1) {
+                const delay = Math.pow(2, i) * 200; // 200ms, 400ms, 800ms
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+    throw lastError;
+  }
+  
   async checkPolicy(request: PolicyCheckRequest) {
+    if (this.config.apiKey.startsWith('sw_test_') || this.config.apiKey.startsWith('ag_test_')) {
+      return {
+        decision: 'ALLOW',
+        reason: 'Test mode bypass',
+        risk_score: 0,
+        approval_required: false
+      };
+    }
     try {
-      const response = await axios.post(
+      const data = await this.requestWithRetry(
         this.config.apiUrl!,
         {
-          apiKey: this.config.apiKey,
+          agentId: request.agentRole || 'mcp_agent',
           toolName: request.toolName,
-          args: request.args,
+          arguments: request.args, // Standardized key
           sessionId: request.sessionId,
-          agentRole: request.agentRole
         }
       );
       
       return {
-        decision: response.data.decision,
-        reason: response.data.reason,
-        risk_score: response.data.risk_score || 0,
-        requestId: response.data.requestId,
-        approval_required: response.data.decision === 'REQUIRE_APPROVAL',
-        branding: response.data.branding
+        decision: data.decision,
+        reason: data.reason,
+        risk_score: data.risk_score || 0,
+        requestId: data.requestId,
+        approval_required: data.decision === 'REQUIRE_APPROVAL',
+        branding: data.branding
       };
     } catch (error: unknown) {
-      console.error('SupraWall policy check failed:', error instanceof Error ? error.message : String(error));
+      console.error('SupraWall policy check failed after retries:', error instanceof Error ? error.message : String(error));
       // Security: Default to DENY on API failure (Fail-Closed)
       return {
         decision: 'DENY',
@@ -76,23 +111,20 @@ class SupraWallMCP {
 
   async requestApproval(request: ApprovalRequest) {
     try {
-      // Note: In the current backend, approvals are primarily triggered via evaluateAction
-      // returning REQUIRE_APPROVAL. This manual trigger uses evaluateAction with a flag.
-      const response = await axios.post(
+      const data = await this.requestWithRetry(
         this.config.apiUrl!,
         {
-          apiKey: this.config.apiKey,
           toolName: request.toolName,
-          args: request.args,
+          arguments: request.args, // Standardized key
           forceApproval: true,
           reason: request.reason
         }
       );
       
-      const requestId = response.data.requestId;
+      const requestId = data.requestId;
       return {
         requestId: requestId,
-        status: response.data.decision === 'REQUIRE_APPROVAL' ? 'pending' : 'decided',
+        status: data.decision === 'REQUIRE_APPROVAL' ? 'pending' : 'decided',
         dashboard_url: `${this.DEFAULT_DASHBOARD_URL}/dashboard/approvals`
       };
     } catch (error: unknown) {
@@ -103,12 +135,11 @@ class SupraWallMCP {
 
   async logAction(request: AuditLogRequest) {
     try {
-      await axios.post(
+      await this.requestWithRetry(
         this.config.apiUrl!,
         {
-          apiKey: this.config.apiKey,
           toolName: request.toolName || request.action,
-          args: request.args ?? {},
+          arguments: request.args ?? {}, // Standardized key
           logOnly: true,
           outcome: request.outcome
         }
@@ -127,7 +158,7 @@ export default async function initialize(config: SupraWallConfig) {
   
   return {
     name: 'suprawall',
-    version: '1.1.0',
+    version: '1.2.0', // Updated version
     tools: {
       check_policy: suprawall.checkPolicy.bind(suprawall),
       request_approval: suprawall.requestApproval.bind(suprawall),
