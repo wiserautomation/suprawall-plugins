@@ -1,0 +1,44 @@
+name: "SupraWall × Cline — CI"
+
+on:
+  push:
+    paths:
+      - "suprawall-plugins/cline/**"
+  pull_request:
+    paths:
+      - "suprawall-plugins/cline/**"
+
+jobs:
+  test:
+    name: "Build & test Cline adapter"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: suprawall-plugins/cline
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: suprawall-plugins/cline/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Run integration tests
+        run: npm test
+        env:
+          # Tests use mocked fetch — no real API key needed
+          SUPRAWALL_API_KEY: sw_test_ci_placeholder
+
+      - name: Verify dist output exists
+        run: |
+          test -f dist/index.js || (echo "ERROR: dist/index.js not found" && exit 1)
+          test -f dist/index.d.ts || (echo "ERROR: dist/index.d.ts not found" && exit 1)
+          echo "✅ Build artifacts verified"
