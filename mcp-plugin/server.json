@@ -8,5 +8,6 @@
   },
   "runtime": "node",
   "transport": "stdio",
-  "entrypoint": "dist/index.js"
+  "entrypoint": "dist/server.js",
+  "privacy_policies": ["https://supra-wall.com/privacy"]
 }

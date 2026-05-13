@@ -3,15 +3,15 @@
   "version": "0.1.0",
   "description": "SupraWall security gateway as an MCP server",
   "mcpName": "io.github.wiserautomation.suprawall-mcp-plugin",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/server.js",
+  "types": "./dist/server.d.ts",
   "bin": {
-    "suprawall-mcp": "./dist/index.js"
+    "suprawall-mcp": "./dist/server.js"
   },
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "start": "node ./dist/index.js",
+    "start": "node ./dist/server.js",
     "dev": "tsc -w"
   },
   "dependencies": {

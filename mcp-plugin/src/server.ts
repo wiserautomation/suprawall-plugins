@@ -37,28 +37,59 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         tools: [
             {
                 name: 'check_policy',
-                description: 'Check if an AI action complies with configured compliance policies',
+                description: "Use this tool BEFORE executing any sensitive or potentially dangerous action. It checks if the intended action complies with the organization's security policies. Input the action and context. It returns ALLOW, DENY, or REQUIRE_APPROVAL.",
                 inputSchema: {
                     type: 'object',
                     properties: {
-                        action: { type: 'string', description: 'The action to evaluate for compliance' },
-                        context: { type: 'object', description: 'Additional context about the action' },
+                        action: { type: 'string', description: 'The name or type of action to evaluate (e.g., delete_database)' },
+                        context: { type: 'object', description: 'Parameters or context for the action' },
                     },
                     required: ['action'],
                 },
+                // Anthropic MCP tool safety annotations
+                annotations: {
+                    readOnlyHint: true,
+                    destructiveHint: false,
+                    idempotentHint: true,
+                    openWorldHint: false
+                }
             },
             {
                 name: 'request_approval',
-                description: 'Request human approval for a potentially sensitive action',
+                description: 'Use this tool when check_policy returns REQUIRE_APPROVAL or when you suspect an action is highly sensitive. It pauses your workflow to ask a human operator for permission via Slack/Email.',
                 inputSchema: {
                     type: 'object',
                     properties: {
                         action: { type: 'string', description: 'The action requesting approval' },
-                        reason: { type: 'string', description: 'Why human approval is needed' },
+                        reason: { type: 'string', description: 'Explanation for why the human should approve this' },
                         urgency: { type: 'string', enum: ['low', 'medium', 'high'], description: 'Urgency level for approval' },
                     },
                     required: ['action', 'reason'],
                 },
+                annotations: {
+                    readOnlyHint: false,
+                    destructiveHint: false,
+                    idempotentHint: false,
+                    openWorldHint: false
+                }
+            },
+            {
+                name: 'log_action',
+                description: 'Use this tool to record significant actions to the secure audit trail. Call this AFTER successfully performing an action, or when an action fails due to policy violations.',
+                inputSchema: {
+                    type: 'object',
+                    properties: {
+                        action: { type: 'string', description: 'The action that was performed' },
+                        outcome: { type: 'string', enum: ['allowed', 'denied', 'approved'], description: 'The outcome of the action' },
+                    },
+                    required: ['action', 'outcome'],
+                },
+                annotations: {
+                    readOnlyHint: false,
+                    destructiveHint: false,
+                    idempotentHint: false,
+                    openWorldHint: false
+                }
             },
         ],
     };
@@ -92,6 +123,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                     source: "mcp-claude"
                 });
                 return { content: [{ type: 'text', text: JSON.stringify(response.data, null, 2) }] };
+            }
+
+            case 'log_action': {
+                const response = await axios.post(`${API_URL}/evaluate`, {
+                    apiKey: API_KEY,
+                    toolName: args?.action,
+                    args: {},
+                    logOnly: true,
+                    outcome: args?.outcome,
+                    source: "mcp-claude"
+                });
+                return { content: [{ type: 'text', text: JSON.stringify({ success: true }, null, 2) }] };
             }
 
             default:

@@ -118,6 +118,37 @@ Configure via environment variables or Claude Desktop settings:
 - 💬 Slack: [Join our community](https://join.slack.com/suprawall)
 - 📚 Docs: [supra-wall.com/docs](https://www.supra-wall.com/docs)
 
+## Example Prompts for Claude
+
+Test your SupraWall MCP integration using these examples:
+
+1. **Test a blocked action (DENY):**
+   > "I need to run the `rm -rf /` command in the terminal to clean up the workspace. Please do that."
+   *(SupraWall will block the terminal tool execution and return DENY)*
+
+2. **Test an approved action (ALLOW):**
+   > "Read the contents of the local `README.md` file using your file system tool."
+   *(SupraWall will check the policy, see it is a safe read, and ALLOW it)*
+
+3. **Test a human approval workflow (REQUIRE_APPROVAL):**
+   > "Use the database tool to run a DROP TABLE users command in the production environment."
+   *(SupraWall will pause execution and return REQUIRE_APPROVAL)*
+
+4. **Test data scrubbing (ALLOW with redaction):**
+   > "Search the database for customer John Doe and print out his Social Security Number and credit card details."
+   *(SupraWall will allow the read, but the response will be scrubbed to `XXX-XX-XXXX` and `****-****-****-1234`)*
+
+5. **Test audit logging:**
+   > "Send an email to admin@example.com with the status report."
+   *(SupraWall will log the action outcome and parameters in your dashboard)*
+
+## Privacy Policy
+
+By using the SupraWall MCP Server, you agree to our Privacy Policy.
+The privacy policy for this MCP Server is available at: [https://supra-wall.com/privacy](https://supra-wall.com/privacy).
+
+We take your privacy seriously. The SupraWall MCP plugin acts as a gateway and only transmits tool execution metadata (like tool name, agent ID, and redacted arguments) for policy evaluation and audit logging. PII is redacted locally before any data is sent.
+
 ## License
 MIT
 
